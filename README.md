@@ -27,7 +27,3 @@ Sample implementations of EKS(AWS Kubernetes Service) with Terraform
 - `terraform plan`
 
 
-
-## Tech Debt 
-- Parameterise input to create-state-s3-bucket.sh better than sroucing another file.
-

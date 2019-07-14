@@ -1,17 +1,19 @@
 resource "aws_subnet" "public" {
+  count             = var.az_count
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${cidrsubnet(aws_vpc.vpc.cidr_block, 4, 1)}"
-  availability_zone = "${var.availability_zone}"
+  cidr_block        = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, count.index+1)}"
+  availability_zone = "${var.availability_zones[count.index]}"
 
-  tags {
-    Name    = "${var.project} ${var.availability_zone} public subnet"
+  tags = {
+    Name    = "${var.project} ${var.availability_zones[count.index]} public subnet"
     Project = "${var.project}"
   }
 }
 
-#Associate subnet with vpc routable
+#Associate subnets with vpc routable
 resource "aws_route_table_association" "public" {
-  subnet_id      = "${aws_subnet.public.id}"
+  count          = var.az_count
+  subnet_id      = "${aws_subnet.public.*.id[count.index]}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
@@ -21,5 +23,3 @@ resource "aws_route" "internet_route" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${aws_internet_gateway.ig.id}"
 }
-
-
